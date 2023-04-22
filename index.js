@@ -37,7 +37,7 @@ const LIMIT_AI_IMAGE_COUNT = 5;
 const LIMIT_COUNT_RESPONSE = '对不起，因为ChatGPT调用收费，您的免费使用额度已用完~'
 
 const configuration = new Configuration({
-  apiKey: '##your api key##',
+  apiKey: process.env.APIKEY || 'sk-xxxxxxxx',
 });
 
 const openai = new OpenAIApi(configuration);
@@ -62,10 +62,10 @@ async function buildCtxPrompt({ FromUserName }) {
 
 async function getAIResponse(prompt) {
   const completion = await openai.createCompletion({
-    model: 'text-davinci-003',
+    model: 'gpt-4',
     prompt,
-    max_tokens: 1024,
-    temperature: 0.1,
+    max_tokens: 512,
+    temperature: 0.3,
   });
 
   const response = (completion?.data?.choices?.[0].text || 'AI 挂了').trim();
@@ -117,15 +117,15 @@ async function getAIMessage({ Content, FromUserName }) {
     },
   });
 
-  // 超过限制，返回提示
-  if (aiType === AI_TYPE_TEXT && count >= LIMIT_AI_TEXT_COUNT) {
-    return LIMIT_COUNT_RESPONSE;
-  }
+  // // 超过限制，返回提示
+  // if (aiType === AI_TYPE_TEXT && count >= LIMIT_AI_TEXT_COUNT) {
+  //   return LIMIT_COUNT_RESPONSE;
+  // }
 
-  // 超过限制，返回提示
-  if (aiType === AI_TYPE_IMAGE && count >= LIMIT_AI_IMAGE_COUNT) {
-    return LIMIT_COUNT_RESPONSE;
-  }
+  // // 超过限制，返回提示
+  // if (aiType === AI_TYPE_IMAGE && count >= LIMIT_AI_IMAGE_COUNT) {
+  //   return LIMIT_COUNT_RESPONSE;
+  // }
 
   // 没超过限制时，正常走AI链路
   // 因为AI响应比较慢，容易超时，先插入一条记录，维持状态，待后续更新记录。
